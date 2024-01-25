@@ -1,9 +1,10 @@
 make:
 	@clear
+	bison -Wcounterexamples -d bosk.y
 	flex lex.l
-	gcc lex.yy.c
+	gcc -w bosk.tab.c lex.yy.c -lfl
 	./a.out
 
 clean:
 	@clear
-	rm a.out lex.yy.c
+	rm -f a.out lex.yy.c bosk.tab.c bosk.tab.h

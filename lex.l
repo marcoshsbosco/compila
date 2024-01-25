@@ -2,46 +2,26 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
-
-    #define TK_KW_INT 0
-    #define TK_ATTR 1
-    #define TK_KW_FLOAT 2
-    #define TK_KW_CHAR 3
-    #define TK_KW_STRING 4
-    #define TK_ID 5
-    #define TK_NUM_Z 6
-    #define TK_NUM_R 7
-    #define TK_STR 8
-    #define TK_CHAR 9
+    #include "bosk.tab.h"
 
     int linha = 1;
 %}
 
 %%
 \n                   {linha++;}
-inteiro              {printf("Achei um keyword inteiro (%s).\n", yytext); TK_KW_INT;}
-quebrado             {printf("Achei um keyword float (%s).\n", yytext); TK_KW_FLOAT;}
-personagem           {printf("Achei um keyword char (%s).\n", yytext); TK_KW_CHAR;}
-linha                {printf("Achei um keyword string (%s).\n", yytext); TK_KW_STRING;}
-[=^=]                {printf("Achei uma atribuição (%s).\n", yytext); TK_ATTR;}
-[a-zA-Z][a-zA-Z0-9]* {printf("Achei uma variável (%s).\n", yytext); TK_ID;}
-[0-9]+               {printf("Achei um literal inteiro (%s).\n", yytext); TK_NUM_Z;}
-[0-9]*[.][0-9]+      {printf("Achei um literal real (%s).\n", yytext); TK_NUM_R;}
-["][^"]*["]          {printf("Achei uma string (%s).\n", yytext); TK_STR;}
-['][a-zA-Z0-9][']    {printf("Achei um char (%s).\n", yytext); TK_CHAR;}
+inteiro              {printf("[lexer] TYPE (int)\n"); return TYPE;}
+quebrado             {printf("[lexer] TYPE (float)\n"); return TYPE;}
+personagem           {printf("[lexer] TYPE (char)\n"); return TYPE;}
+linha                {printf("[lexer] TYPE (str)\n"); return TYPE;}
+[=^=]                {printf("[lexer] ATTR\n"); return ATTR;}
+[a-zA-Z][a-zA-Z0-9]* {printf("[lexer] ID (%s)\n", yytext); yylval.id = (char *) strdup(yytext); return ID;}
+[0-9]+               {printf("[lexer] INT\n"); yylval.intval = atoi(yytext); return INT;}
+[0-9]*[.][0-9]+      {printf("[lexer] FLOAT\n"); return FLOAT;}
+["][^"]*["]          {printf("[lexer] STR\n"); return STR;}
+['][a-zA-Z0-9][']    {printf("[lexer] CHAR\n"); return CHAR;}
 [ \t]
 .                    {printf("[ERRO] Caracter não reconhecido na linha %d: %s\n", linha, yytext); return -1;}
 %%
 
 int yywrap() {}
-int main() {
 
-    FILE *fp;
-    char filename[50] = "entrada.bosk";
-    fp = fopen(filename, "r");
-    yyin = fp;
-
-    yylex();
-
-    0;
-}
